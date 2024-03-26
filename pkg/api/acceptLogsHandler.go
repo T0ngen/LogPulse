@@ -24,7 +24,13 @@ func (h *handler) AcceptLogs(c *gin.Context){
 		if err := c.ShouldBindJSON(&requestBody); err != nil {
 			fmt.Println(err)
 		}
-		fmt.Println(requestBody.Level)
+		newLog := mappers.GenerateNewLog(requestBody)
+
+		_, err :=h.MongoDB.AddLog(c, newLog)
+		if err!= nil{
+			fmt.Println("bad")
+		}
+		fmt.Println("good")
 
 	}
 	

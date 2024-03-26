@@ -2,6 +2,8 @@ package main
 
 import (
 	"main/pkg/api"
+
+	"main/pkg/common/database/mongodb"
 	"main/pkg/common/database/sqlc"
 
 	"github.com/gin-gonic/gin"
@@ -20,12 +22,12 @@ func main(){
 	}
 	psgreClient := sqlc.New(db)
 	logrus.Info("The Postgres is connected to the server!")
-	
+	client, err := mongodb.Init("mongodb://localhost:27017")
 	validate := validator.New()
 
 	r := gin.Default()
 
-	api.RegisterRouter(r,validate, psgreClient)
+	api.RegisterRouter(r,validate, psgreClient, client)
 
 	err = r.Run()
 	
