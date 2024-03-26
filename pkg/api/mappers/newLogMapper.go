@@ -4,44 +4,38 @@ import (
 	"main/pkg/common/models"
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type NewLogForm struct {
-	Key string `json:"key"`
-    Timestamp   time.Time `json:"timestamp"`   // Временная метка события
-    Level       string    `json:"level"`       // Уровень лога, например, INFO, ERROR, DEBUG
-    Message     string    `json:"message"`     // Основное сообщение лога
-    UserID      string    `json:"userId,omitempty"` // ID пользователя, если применимо
-    RequestID   string    `json:"requestId,omitempty"` // ID запроса, для связывания логов одного запроса
-    IP          string    `json:"ip,omitempty"`       // IP-адрес запроса, если применимо
-    UserAgent   string    `json:"userAgent,omitempty"`// User-Agent запроса, если применимо
-    ErrorCode   string    `json:"errorCode,omitempty"`// Код ошибки, если применимо
-    StackTrace  string    `json:"stackTrace,omitempty"` // Стек вызовов для ошибок
-    CustomData  map[string]interface{} `json:"customData,omitempty"` // Дополнительные пользовательские данные
+    Timestamp   time.Time `json:"timestamp"`   
+    Level       string    `json:"level" validate:"required"`       
+    Message     string    `json:"message" validate:"required"`     
+    UserID      string    `json:"user_id,omitempty"` 
+    RequestID   string    `json:"request_id,omitempty"` 
+    IP          string    `json:"ip,omitempty"`      
+    UserAgent   string    `json:"user_agent,omitempty"`
+    ErrorCode   string    `json:"error_code,omitempty"`
+    StackTrace  string    `json:"stack_trace,omitempty"` 
+    CustomData  map[string]interface{} `json:"customData,omitempty"` 
 }
-func GenerateNewLog(newLogForm NewLogForm) models.LogsModel {
+func GenerateNewLog(key string,  newLogForm NewLogForm) models.LogsModel {
     
-    accountID := primitive.NewObjectID().Hex()
-
     
     currentTime := time.Now()
 
    
     newLog := models.LogsModel{
-        
+        Key: key,
         Timestamp:  currentTime,
-        Level:      "INFO", 
-        Message:    "New user account created",
-        UserID:     accountID,
-        RequestID:  "",        
-        IP:         "",        
-        UserAgent:  "",       
-        ErrorCode:  "",       
-        StackTrace: "",       
-        CustomData: map[string]interface{}{
-           
-        },
+        Level:      newLogForm.Level, 
+        Message:    newLogForm.Message,
+        UserID:     newLogForm.UserID,
+        RequestID:  newLogForm.RequestID,        
+        IP:         newLogForm.IP,        
+        UserAgent:  newLogForm.UserAgent,       
+        ErrorCode:  newLogForm.ErrorCode,       
+        StackTrace: newLogForm.StackTrace,       
+        CustomData: newLogForm.CustomData,
     }
 
     return newLog
