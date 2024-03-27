@@ -1,7 +1,7 @@
 package api
 
 import (
-	"fmt"
+	
 	"main/pkg/api/mappers"
 	"main/pkg/api/responses"
 	"net/http"
@@ -39,7 +39,7 @@ func (h *handler) AcceptLogs(c *gin.Context){
 					"error": responses.ErrorResponse{
 						Error: "Unable to bind requested json to the model ",
 						Description: responses.ErrorDescription{
-							ErrorCode:           http.StatusBadRequest,
+							ErrorCode:           http.StatusInternalServerError,
 							TagError:            "inner_error",
 							DetailedDescription: "Unable to bind requested json to the model, try again later",
 						},
@@ -60,8 +60,8 @@ func (h *handler) AcceptLogs(c *gin.Context){
 					"error": responses.ErrorResponse{
 						Error: "Error while checking key existence",
 						Description: responses.ErrorDescription{
-							ErrorCode:           http.StatusBadRequest,
-							TagError:            "query_error",
+							ErrorCode:           http.StatusInternalServerError,
+							TagError:            "inner_error",
 							DetailedDescription: "Error while checking key existence, try again later",
 						},
 					},
@@ -92,8 +92,20 @@ func (h *handler) AcceptLogs(c *gin.Context){
 		}
 
 		if !isKeyExist{
+			logrus.WithFields(genLog(err, "AcceptLogs",
+			"addLogsHandler")).Infof("Error! The key is not registered in the system")
+			c.JSON(http.StatusNotFound, gin.H{
+					"error": responses.ErrorResponse{
+						Error: "Error! The key is not registered in the system",
+						Description: responses.ErrorDescription{
+							ErrorCode:           http.StatusNotFound,
+							TagError:            "error",
+							DetailedDescription: "The key is not registered in the system, try again with other key",
+						},
+					},
+				})
+				return
 			
-			fmt.Println("pidor")
 		}
 
 	}
@@ -102,9 +114,36 @@ func (h *handler) AcceptLogs(c *gin.Context){
 	
 	_, err =h.MongoDB.AddLog(c, newLog)
 	if err!= nil{
-		fmt.Println("bad")
+		logrus.WithFields(genLog(err, "AcceptLogs",
+			"addLogsHandler")).Error("Error! While adding a log to the database")
+			c.JSON(http.StatusInternalServerError, gin.H{
+					"error": responses.ErrorResponse{
+						Error: "Error! While adding a log to the database",
+						Description: responses.ErrorDescription{
+							ErrorCode:           http.StatusInternalServerError,
+							TagError:            "inner_error",
+							DetailedDescription: "Error! While adding a log to the database, try again later",
+						},
+					},
+				})
+				return
 	}
-	fmt.Println("good")
+
+
+
+	logrus.WithFields(genLog(err, "AcceptLogs",
+			"addLogsHandler")).Infof("Log succesfully added to DB")
+			c.JSON(http.StatusOK, gin.H{
+					"error": responses.ErrorResponse{
+						Error: "Log added successfully",
+						Description: responses.ErrorDescription{
+							ErrorCode:           http.StatusOK,
+							TagError:            "success",
+							DetailedDescription: "Log added successfully to DB",
+						},
+					},
+				})
+				
 	
 	
 }
