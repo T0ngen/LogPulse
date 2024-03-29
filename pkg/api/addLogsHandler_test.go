@@ -31,6 +31,15 @@ type MockDBMongo struct {
 
 }
 
+func (m *MockDBMongo) GetLogs(ctx context.Context, key string) ([]models.LogsModel, error) {
+	args := m.Called(ctx, key)
+	return args.Get(0).([]models.LogsModel), args.Error(1)
+}
+func (m *MockDBMongo) GetLogsById(ctx context.Context, key string, reqid string) ([]models.LogsModel, error) {
+	args := m.Called(ctx, key)
+	return args.Get(0).([]models.LogsModel), args.Error(1)
+}
+
 func (m *MockDBMongo) AddLog(ctx context.Context, logData models.LogsModel) (*mongo.InsertOneResult, error) {
 	args := m.Called(ctx, logData)
 	return args.Get(0).(*mongo.InsertOneResult), args.Error(1)

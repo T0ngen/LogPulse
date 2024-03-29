@@ -15,13 +15,15 @@ type KeyExist interface{
 	CheckKeyExist(ctx context.Context, key string) (bool, error)
 }
 
-type SaveLog interface{
+type LogsMongo interface{
 	AddLog(ctx context.Context, logData models.LogsModel) (*mongo.InsertOneResult, error)
+	GetLogs(ctx context.Context, key string) ([]models.LogsModel, error)
+	GetLogsById(ctx context.Context, key string, reqId string) ([]models.LogsModel, error)
 }
 
 type handler struct{
 	DB KeyExist
-	MongoDB SaveLog
+	MongoDB LogsMongo
 	Validator *validator.Validate
 	
 
@@ -35,5 +37,10 @@ func RegisterRouter(r *gin.Engine, validate *validator.Validate, db *sqlc.Querie
 	routes := r.Group("/api/v1/")
 	
 	routes.POST("/sendlog/:key", h.AcceptLogs)
-
+	routes.GET("/logs/:key", gin.BasicAuth(gin.Accounts{
+       "tgbot" : "tgbot", 
+    }), h.GetLogs)
+	routes.GET("/logsbyid/:key/:id", gin.BasicAuth(gin.Accounts{
+       "tgbot" : "tgbot", 
+    }), h.GetLogsByReqId)
 }

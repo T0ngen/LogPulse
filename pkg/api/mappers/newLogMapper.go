@@ -15,8 +15,7 @@ type NewLogForm struct {
     IP          string    `json:"ip,omitempty"`      
     UserAgent   string    `json:"user_agent,omitempty"`
     ErrorCode   string    `json:"error_code,omitempty"`
-    StackTrace  string    `json:"stack_trace,omitempty"` 
-    CustomData  map[string]interface{} `json:"customData,omitempty"` 
+    StackTrace  string    `json:"stack_trace,omitempty"`
 }
 func GenerateNewLog(key string,  newLogForm NewLogForm) models.LogsModel {
     
@@ -35,7 +34,6 @@ func GenerateNewLog(key string,  newLogForm NewLogForm) models.LogsModel {
         UserAgent:  newLogForm.UserAgent,       
         ErrorCode:  newLogForm.ErrorCode,       
         StackTrace: newLogForm.StackTrace,       
-        CustomData: newLogForm.CustomData,
     }
 
     return newLog
