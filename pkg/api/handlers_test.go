@@ -156,3 +156,112 @@ func TestAcceptLogs(t *testing.T) {
 
 	
 }
+
+
+func TestGetLogsByReqId(t *testing.T){
+    tests := []struct{
+        name string
+        key string
+        requesId string
+        expectedResult []models.LogsModel
+        
+        Err error
+    }{
+        {
+            name: "get logs by id",
+            key: "fafafassxx",
+            requesId: "3131",
+            expectedResult: 
+            []models.LogsModel{
+                {
+                    Key: "dandhfhfahfa",
+                    Timestamp: time.Now(),
+                    Level: "INFO",
+                    Message: "Hellow world",
+                    RequestID: "3131",
+                    
+
+                
+            },
+            
+        },Err: nil,
+    },
+    }
+    mockDBPostgre := new(MockDBPostgre)
+    mockDBMongo := new(MockDBMongo)
+
+    h := handler{
+        DB:         mockDBPostgre,
+        MongoDB:    mockDBMongo,
+        Validator:  validator.New(),
+    }
+    for _, test := range tests{
+        t.Run(test.name, func(t *testing.T) {
+            mockDBMongo.On("GetLogsById", mock.Anything, test.key).Return(test.expectedResult, test.Err)
+
+            logs, err := h.MongoDB.GetLogsById(context.Background(),test.key, test.requesId)
+
+            
+            assert.Equal(t, test.expectedResult, logs)
+            assert.Equal(t, test.Err, err)
+        })
+    }
+
+
+}
+func TestGetAllLogs(t *testing.T){
+    tests := []struct{
+        name string
+        key string
+        expectedResult []models.LogsModel
+        Err error
+
+    }{
+        {
+            name: "get all logs",
+            key: "dandhfhfahfa",
+            expectedResult: []models.LogsModel{
+                {
+                    Key: "dandhfhfahfa",
+                    Timestamp: time.Now(),
+                    Level: "INFO",
+                    Message: "Hellow world",
+                    
+
+                
+            },
+            
+            {
+                Key: "dandhfhfahfa",
+                Timestamp: time.Now(),
+                Level: "ERROR",
+                Message: "Hellow world",
+
+            
+        },
+            },Err: nil,
+        },
+
+        
+
+    }
+    mockDBPostgre := new(MockDBPostgre)
+    mockDBMongo := new(MockDBMongo)
+
+    h := handler{
+        DB:         mockDBPostgre,
+        MongoDB:    mockDBMongo,
+        Validator:  validator.New(),
+    }
+    for _, test := range tests{
+        t.Run(test.name, func(t *testing.T) {
+            mockDBMongo.On("GetLogs", mock.Anything, test.key).Return(test.expectedResult, test.Err)
+
+            logs, err := h.MongoDB.GetLogs(context.Background(),test.key)
+
+            assert.Equal(t, test.expectedResult, logs)
+            assert.Equal(t, test.Err, err)
+        })
+    }
+    
+}
